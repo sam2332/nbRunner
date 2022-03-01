@@ -1,2 +1,1 @@
-# nbRunner
-Jupyter Notebook Runner
+# nbRunner - {Blazing fast Paramaterized Execution}
