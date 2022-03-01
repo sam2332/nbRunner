@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
      name='nbRunner',  
-     version='0.4',
+     version='0.5',
      scripts=['nbRunner'] ,
      author="Sam Rudloff",
      author_email="sam.rudloff@gmail.com",
