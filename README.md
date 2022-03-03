@@ -32,6 +32,30 @@ Billy knocked
 
 ```
 
+
+By Default the package uses exec due to notbook client refusing 
+
+but as you can see the timeing is horrible compared to exec
+
+```
+srudloff@IT16094:~/nbRunner$ time ./nbRunner ../randomWallpaper.ipynb --use_notebook_client
+Using Notebook client
+
+real  0m2.405s
+user  0m2.247s
+sys 0m1.864s
+
+
+srudloff@IT16094:~/nbRunner$ time ./nbRunner ../randomWallpaper.ipynb
+
+real  0m0.552s
+user  0m0.655s
+sys 0m0.602s
+
+```
+
+
+
 ```
 $ time nbRunner examples/nounVerb.ipynb 
 Default does the Default
