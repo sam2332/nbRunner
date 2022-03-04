@@ -32,17 +32,46 @@ if debug_print_params:
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 flagglessArgs={}
+
+requiredNamed = parser.add_argument_group('Required notebook arguments')
+optionalNamed = parser
+gs ={}
+gs[True] = requiredNamed
+gs[False] = optionalNamed
+
 for item in notebook_params:
     name =item.name
+    comment = ''
+    required = False
+    if item.comment is not None:
+        comment = item.comment   
+
+        if comment.endswith("#Required"):
+            required = True
+            comment = comment[0:len(comment)-len('#Required')]
+
     if item.name.startswith('__') and item.name.endswith('__'):
         name=name.replace('__','')
         flagglessArgs[name] = item.name
+        if item.type == list:
+            parser.add_argument(f'{name}',  choices=item.value, help = f"{comment}")    
+        else:
+            parser.add_argument(f'{name}', nargs='?', default=item.value, type=item.type, help = f"{comment}  (default: %(default)s)")
+
+
     else:    
-        name = f'--{name}'
-    if item.type == list:
-        parser.add_argument(f'{name}',  choices=item.value, help = f"{item.comment if item.comment is not None else ''}")    
-    else:
-        parser.add_argument(f'{name}', nargs='?', default=item.value, type=item.type, help = f"{item.comment if item.comment is not None else ''}  (default: %(default)s)")
+        if required:
+            name = f'-{name}'
+        else:
+            name = f'--{name}'
+
+        if item.type == list:
+            gs[required].add_argument(f'{name}',  choices=item.value, help = f"{comment}",required=required)    
+        elif item.type == bool:
+            gs[required].add_argument(f'{name}',  choices=[True,False], help = f"{comment}",required=required)   
+
+        else:
+            gs[required].add_argument(f'{name}', nargs='?', default=item.value, type=item.type, help = f"{comment}  (default: %(default)s)",required=required)
 
 
 args = sys.argv
