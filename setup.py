@@ -20,7 +20,7 @@ class PostInstall(install):
 
 setuptools.setup(
     name='nbRunner',  
-    version='0.9.4',
+    version='0.9.6',
     scripts=['nbRunner'] ,
     author="Sam Rudloff",
     author_email="sam.rudloff@gmail.com",

@@ -5,7 +5,7 @@ import nbformat
 import nbparameterise
 import sys
 import time
-
+from collections import defaultdict
 parser = argparse.ArgumentParser(
     description='Notebook Runner',
     add_help=False
@@ -22,6 +22,8 @@ debug_print_cell_numbers = debugMode
 debug_sleep_between_cells = 0
 debug_print_args=debugMode
 debug_print_params=debugMode
+debug_print_param_params = debugMode
+
 with open(nboargs.Notebook, 'rb') as f:
     nb = nbformat.read(f, as_version=4)
 
@@ -38,42 +40,57 @@ optionalNamed = parser
 gs ={}
 gs[True] = requiredNamed
 gs[False] = optionalNamed
+p_prams=defaultdict(lambda:{
+    'required':False,
+    'toLower':False,
+    'flagglessArgs':False
+})
+
 
 for item in notebook_params:
     name =item.name
     comment = ''
-    required = False
+    value = item.value
     if item.comment is not None:
-        comment = item.comment   
+        commentlist = item.comment.split('#')  
+        commentlist.reverse()
+        while len(commentlist):
+            comment = commentlist.pop(0)
+            if comment.lower().endswith("required"):
+                p_prams[name]['required'] = True
 
-        if comment.endswith("#Required"):
-            required = True
-            comment = comment[0:len(comment)-len('#Required')]
+            elif comment.lower().endswith("tolower"):
+                p_prams[name]['toLower'] = True
+            else:
+                commentlist.reverse()
+                comment= '#'.join(commentlist)
+                break
 
     if item.name.startswith('__') and item.name.endswith('__'):
         name=name.replace('__','')
-        flagglessArgs[name] = item.name
+        p_prams[name]['flagglessArgs'] = item.name
         if item.type == list:
-            parser.add_argument(f'{name}',  choices=item.value, help = f"{comment}")    
+            parser.add_argument(f'{name}',  choices=value, help = f"{comment}")    
         else:
-            parser.add_argument(f'{name}', nargs='?', default=item.value, type=item.type, help = f"{comment}  (default: %(default)s)")
+            parser.add_argument(f'{name}', nargs='?', default=value, type=item.type, help = f"{comment}  (default: %(default)s)")
 
 
     else:    
-        if required:
-            name = f'-{name}'
+        if p_prams[name]['required']:
+            flag = f'-{name}'
+            if value  == '':
+                value = None
         else:
-            name = f'--{name}'
+            flag = f'--{name}'
 
         if item.type == list:
-            gs[required].add_argument(f'{name}',  choices=item.value, help = f"{comment}",required=required)    
+            gs[p_prams[name]['required']].add_argument(f'{flag}',  choices=value, help = f"{comment}",required=p_prams[name]['required'])    
         elif item.type == bool:
-            gs[required].add_argument(f'{name}',  choices=[True,False], help = f"{comment}",required=required)   
-
+            gs[p_prams[name]['required']].add_argument(f'{flag}',  choices=[True,False], help = f"{comment}",required=p_prams[name]['required'])   
         else:
-            gs[required].add_argument(f'{name}', nargs='?', default=item.value, type=item.type, help = f"{comment}  (default: %(default)s)",required=required)
-
-
+            gs[p_prams[name]['required']].add_argument(f'{flag}', nargs='?', default=value, type=item.type, help = f"{comment}  (default: %(default)s)",required=p_prams[name]['required'])
+if debug_print_param_params:            
+    print('p_prams',p_prams)
 args = sys.argv
 if debug_print_args:
     print(args)
@@ -89,7 +106,7 @@ if debug_print_args:
 final_args = {}
 args = vars(args)
 for a in args:
-    if a in flagglessArgs:
+    if p_prams[a]['flagglessArgs']:
         final_args[f'__{a}__'] = args[a]
     else:
         final_args[a]=args[a]
