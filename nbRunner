@@ -41,6 +41,7 @@ gs ={}
 gs[True] = requiredNamed
 gs[False] = optionalNamed
 p_prams=defaultdict(lambda:{
+    'type':None,
     'required':False,
     'toLower':False,
     'flagglessArgs':False
@@ -49,6 +50,7 @@ p_prams=defaultdict(lambda:{
 
 for item in notebook_params:
     name =item.name
+    p_prams[name]['type'] = item.type
     comment = ''
     value = item.value
     if item.comment is not None:
@@ -86,7 +88,7 @@ for item in notebook_params:
         if item.type == list:
             gs[p_prams[name]['required']].add_argument(f'{flag}',  choices=value, help = f"{comment}",required=p_prams[name]['required'])    
         elif item.type == bool:
-            gs[p_prams[name]['required']].add_argument(f'{flag}',  choices=[True,False], help = f"{comment}",required=p_prams[name]['required'])   
+            gs[p_prams[name]['required']].add_argument(f'{flag}',  choices=['True','False'], help = f"{comment}",required=p_prams[name]['required'])   
         else:
             gs[p_prams[name]['required']].add_argument(f'{flag}', nargs='?', default=value, type=item.type, help = f"{comment}  (default: %(default)s)",required=p_prams[name]['required'])
 if debug_print_param_params:            
