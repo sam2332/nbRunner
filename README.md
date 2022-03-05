@@ -3,6 +3,14 @@
 Fast JupyterNotebook PYTHON Runner
 [![PyPI version](https://badge.fury.io/py/nbRunner.svg)](https://badge.fury.io/py/nbRunner)
 
+
+
+Recomended Package changes
+
+sudo pip install git+https://github.com/sam2332/nbparameterise.git
+
+I have a custom nbparameterise that will allow for more features such at tagged notebooks for paramater cell selections
+
 Examples
 
 ```
