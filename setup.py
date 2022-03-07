@@ -8,20 +8,25 @@ with open("README.md", "r") as fh:
 with open("LICENSE", "r") as fh:
     long_license = fh.read()
 
+
 class PostInstall(install):
-    pkgs = 'git+https://github.com/sam2332/nbparameterise.git'
     def run(self):
         install.run(self)
-        print(getoutput('pip uninstall nbparameterise -y'))
+        print(getoutput("pip uninstall nbparameterise -y"))
         try:
-            print(getoutput('pip install '+self.pkgs))
+            print(
+                getoutput(
+                    "pip install git+https://github.com/sam2332/nbparameterise.git"
+                )
+            )
         except Exception as e:
-            print(getoutput('pip install nbparameterise'))
+            print(getoutput("pip install nbparameterise"))
+
 
 setuptools.setup(
-    name='nbRunner',  
-    version='0.9.75',
-    scripts=['nbRunner'] ,
+    name="nbRunner",
+    version="0.9.76",
+    scripts=["nbRunner"],
     author="Sam Rudloff",
     author_email="sam.rudloff@gmail.com",
     description="Simple jupyter Notebook Runner that shows cell output",
@@ -35,10 +40,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     License=long_license,
-    install_requires=[
-        'argparse',
-        'nbformat',
-        'nbclient'
-    ],
-    cmdclass={'install': PostInstall}
+    install_requires=["argparse", "nbformat", "nbclient"],
+    cmdclass={"install": PostInstall},
 )
